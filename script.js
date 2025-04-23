@@ -8,20 +8,58 @@ let circleSpeed = 10;
 let circleSpeedX = Math.cos(circleAng) * circleSpeed;
 let circleSpeedY = Math.sin(circleAng) * circleSpeed;
 
+let shipX = 400;
+let shipY = 500;
+let shipW = 64;
+let shipH = 64;
+
+let player = new Image();
+player.src = "spaceship.png";
+
+let bullet = new Image();
+bullet.src = "bullet.png";
+let bulletW = 16;
+let bulletH = 32;
+let bulletSpeed = 5;
+
+let bullets = [[400, 400], [400, -100], [400, -100]];
+
+let bg = new Image();
+bg.src = "bg_space_seamless.png";
+
+let bgW = canvas.width;
+let bgH = canvas.height;
+let bgY1 = 0;
+let bgY2 = bgH;
+let bgSpeed = 1;
+
 canvas.addEventListener(
     "mousemove",
     function(event)
     {
         let rect = canvas.getBoundingClientRect();
-        let x = event.clientX - rect.left;
-        let y = event.clientY - rect.top;
-        console.log(`Coords: ${x}, ${y}`);
-        ctx.beginPath();
-        ctx.arc(x, y, 15, 0, 2*Math.PI);
-        ctx.fill();
-        
+        shipX = event.clientX - rect.left - shipW/2;
+        //shipY = event.clientY - rect.top - shipH/2;
+        //console.log(`Coords: ${x}, ${y}`);   
     }
 );
+
+canvas.addEventListener(
+    "click",
+    function(event)
+    {
+        for (let i = 0; i < bullets.length; i++)
+        {
+            if (bullets[i][1] <= -bulletH/2)
+            {
+                bullets[i][0] = shipX + shipW/2;
+                bullets[i][1] = shipY;
+                break;
+            }
+        }
+    }
+);
+
 
 function desenha()
 {
@@ -45,8 +83,70 @@ function desenha()
     ctx.beginPath();
     ctx.arc(circleX, circleY, 20, 0, 2*Math.PI);
     ctx.fill();
+
 }
 
-setInterval(desenha, 1000/60);
+function drawBullet()
+{
+    for (let i = 0; i < bullets.length; i++)
+    {
+        bullets[i][1] -= bulletSpeed;
+        ctx.beginPath();
+        ctx.drawImage(
+            bullet,
+            bullets[i][0] - bulletW/2,
+            bullets[i][1] - bulletH/2,
+            bulletW,
+            bulletH
+        );
+    }
+}
+
+function drawBG()
+{
+    bgY1 += bgSpeed;
+    bgY2 += bgSpeed;
+
+    if (bgY1 >= bgH)
+    {
+        bgY1 -= 2*bgH;
+    }
+    if (bgY2 >= bgH)
+    {
+        bgY2 -= 2*bgH;
+    }
+
+    ctx.beginPath();
+    ctx.drawImage(
+        bg,
+        0,
+        bgY1,
+        bgW,
+        bgH
+    );
+
+    ctx.beginPath();
+    ctx.drawImage(
+        bg,
+        0,
+        bgY2,
+        bgW,
+        bgH
+    );
+}
+
+function jogar()
+{
+    ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+    drawBG();
+
+    ctx.beginPath();
+    ctx.drawImage(player, shipX, shipY, shipW, shipH);
+
+    drawBullet();
+}
+
+setInterval(jogar, 1000/60);
 
 
