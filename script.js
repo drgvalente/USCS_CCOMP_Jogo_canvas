@@ -167,7 +167,7 @@ function collisionBulletEnemy(b, e)
                 (b[1] - e[1])**2
             );
     let somaDosRaios = enRadius + bulletRadius;
-    
+     
     if(dist < somaDosRaios)
     {
         colidiu = true;
