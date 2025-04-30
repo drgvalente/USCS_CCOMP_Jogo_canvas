@@ -21,6 +21,7 @@ bullet.src = "bullet.png";
 let bulletW = 16;
 let bulletH = 32;
 let bulletSpeed = 5;
+let bulletRadius = bulletW;
 
 let bullets = [[400, 400], [400, -100], [400, -100]];
 
@@ -32,6 +33,14 @@ let bgH = canvas.height;
 let bgY1 = 0;
 let bgY2 = bgH;
 let bgSpeed = 1;
+
+let enemy = new Image();
+enemy.src = "saucer2.png";
+let enW = 64;
+let enH = 32;
+let enemies = [[100, 100, 1], [700, 100, -1]];
+let enSpeed = 0.5;
+let enRadius = enW;
 
 canvas.addEventListener(
     "mousemove",
@@ -135,6 +144,52 @@ function drawBG()
     );
 }
 
+function drawEnemy()
+{
+    ctx.beginPath();
+    for (let i = 0; i < enemies.length; i++)
+    {
+        ctx.drawImage(
+            enemy,
+            enemies[i][0],
+            enemies[i][1],
+            enW,
+            enH
+        );
+    }
+}
+
+function collisionBulletEnemy(b, e)
+{
+    let colidiu = false;
+    let dist = Math.sqrt(
+                (b[0] - e[0])**2 + 
+                (b[1] - e[1])**2
+            );
+    let somaDosRaios = enRadius + bulletRadius;
+    
+    if(dist < somaDosRaios)
+    {
+        colidiu = true;
+    }
+    
+    return colidiu;
+}
+
+function collisionTest()
+{
+    for (let i = 0; i < bullets.length; i++)
+    {
+        for(let j = 0; j < enemies.length; j++)
+        {
+            if (collisionBulletEnemy(bullets[i], enemies[j]))
+            {
+                bullets[i][1] = -500;
+            }
+        }
+    }
+}
+
 function jogar()
 {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -145,6 +200,8 @@ function jogar()
     ctx.drawImage(player, shipX, shipY, shipW, shipH);
 
     drawBullet();
+    drawEnemy();
+    collisionTest();
 }
 
 setInterval(jogar, 1000/60);
