@@ -1,6 +1,11 @@
 let canvas = document.getElementById("myCanvas");
 let ctx = canvas.getContext("2d");
 
+let score = 0;
+let scoreX = 50;
+let scoreY = 50;
+let scoreColor = "yellow";
+
 let circleX = 400;
 let circleY = 300;
 let circleAng = Math.random() * 2*Math.PI;
@@ -21,7 +26,7 @@ bullet.src = "bullet.png";
 let bulletW = 16;
 let bulletH = 32;
 let bulletSpeed = 5;
-let bulletRadius = bulletW;
+let bulletRadius = bulletW/2;
 
 let bullets = [[400, 400], [400, -100], [400, -100]];
 
@@ -38,9 +43,12 @@ let enemy = new Image();
 enemy.src = "saucer2.png";
 let enW = 64;
 let enH = 32;
-let enemies = [[100, 100, 1], [700, 100, -1]];
-let enSpeed = 0.5;
-let enRadius = enW;
+let enHP = 3;
+let enemies = [ [100, 100, 1, enHP], [700, 100, -1, enHP] ];
+let enSpeed = 2;
+let enRadius = enW/2;
+let enSpawnCD = 3000; // tempo em ms para aparecer outro inimigo
+let enSpawnTimer = 0;
 
 canvas.addEventListener(
     "mousemove",
@@ -146,13 +154,31 @@ function drawBG()
 
 function drawEnemy()
 {
+    enSpawnTimer += 1000/60;
+    if (enSpawnTimer >= enSpawnCD)
+    {
+        enSpawnTimer = 0;
+        let x = Math.random() * canvas.width;
+        let y = Math.random() * 100 + 50
+        let dir = Math.random() * 2 - 1
+        let e = [x, y, dir, enHP];
+        enemies.push(e);
+    }
     ctx.beginPath();
     for (let i = 0; i < enemies.length; i++)
     {
+        if (enemies[i][0] < canvas.width && enemies[i][0] > 0)
+            enemies[i][0] += enSpeed * enemies[i][2];
+        else
+        {
+            enemies[i][2] *= -1;
+            enemies[i][0] += enSpeed * enemies[i][2];
+        }
+            
         ctx.drawImage(
             enemy,
-            enemies[i][0],
-            enemies[i][1],
+            enemies[i][0] - enW/2,
+            enemies[i][1] - enH/2,
             enW,
             enH
         );
@@ -167,7 +193,7 @@ function collisionBulletEnemy(b, e)
                 (b[1] - e[1])**2
             );
     let somaDosRaios = enRadius + bulletRadius;
-     
+    
     if(dist < somaDosRaios)
     {
         colidiu = true;
@@ -182,12 +208,27 @@ function collisionTest()
     {
         for(let j = 0; j < enemies.length; j++)
         {
-            if (collisionBulletEnemy(bullets[i], enemies[j]))
+            if ( collisionBulletEnemy(bullets[i], enemies[j]) )
             {
-                bullets[i][1] = -500;
+                bullets[i][1] = -500; // tira a bullet da tela
+                enemies[j][3] -= 1; // tira uma "vida" do inimigo
+                if (enemies[j][3] <= 0)
+                {
+                    enemies.splice(j, 1);
+                    score += 1;
+                }
+                    
             }
         }
     }
+}
+
+function drawScore()
+{
+    ctx.beginPath();
+    ctx.fillStyle = scoreColor;
+    ctx.font = "50px Arial";
+    ctx.fillText(score, scoreX, scoreY);
 }
 
 function jogar()
@@ -202,6 +243,7 @@ function jogar()
     drawBullet();
     drawEnemy();
     collisionTest();
+    drawScore();
 }
 
 setInterval(jogar, 1000/60);
