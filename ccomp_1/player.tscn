@@ -1,0 +1,25 @@
+[gd_scene load_steps=6 format=3 uid="uid://ntvgbq7nkwn5"]
+
+[ext_resource type="Script" uid="uid://xeayepyl4xd2" path="res://player.gd" id="1_4flbx"]
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_sh265"]
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_sh265"]
+material = SubResource("StandardMaterial3D_sh265")
+
+[sub_resource type="StandardMaterial3D" id="StandardMaterial3D_4flbx"]
+albedo_color = Color(0.533326, 0, 0, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_onrkg"]
+material = SubResource("StandardMaterial3D_4flbx")
+
+[node name="Player" type="CharacterBody3D"]
+script = ExtResource("1_4flbx")
+
+[node name="Body" type="MeshInstance3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1, 0)
+mesh = SubResource("CapsuleMesh_sh265")
+
+[node name="Glasses" type="MeshInstance3D" parent="Body"]
+transform = Transform3D(0.85, 0, 0, 0, 0.3, 0, 0, 0, 0.5, 0, 0.6, -0.23)
+mesh = SubResource("BoxMesh_onrkg")
